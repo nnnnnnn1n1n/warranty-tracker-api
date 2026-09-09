@@ -1,0 +1,61 @@
+# Gradle generated files
+.gradle/
+build/
+out/
+
+# Test and coverage reports
+test-results/
+reports/
+*.jacoco.*
+jacoco-*.exec
+coverage/
+*.lcov
+*.cobertura.xml
+build/reports/
+build/test-results/
+.gradle/test-results/
+**/target/surefire-reports/
+**/target/failsafe-reports/
+
+# IDE/Editor files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Operating system files
+Thumbs.db
+.DS_Store
+
+# Local/environment files
+.env
+.env.local
+.env.*.local
+.properties.local
+local.properties
+
+# Java/Spring Boot temporary files
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Package files
+*.log
+*.log.*
+
+# IDE temp files
+.classpath
+.project
+.settings/
+*.sublime-project
+*.sublime-workspace
