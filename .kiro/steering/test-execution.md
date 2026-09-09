@@ -1,5 +1,5 @@
 ﻿---
-inclusion: auto
+inclusion: always
 name: test-execution-rule
 description: Mandatory rule for test execution and validation in the Warranty Tracker API project
 ---

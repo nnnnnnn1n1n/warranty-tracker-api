@@ -256,7 +256,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ## Phase 3: Business Logic & Services
 
-- [ ] 7. Implement WarrantyCalculator for Status Determination
+- [x] 7. Implement WarrantyCalculator for Status Determination
 
 **Description**: Create WarrantyCalculator utility class that calculates warranty status based on warranty end date and current date. This is a pure, stateless component that implements the warranty status business rules.
 
