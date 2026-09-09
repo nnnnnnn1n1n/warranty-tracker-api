@@ -22,7 +22,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
      * @param endDate the end date to filter by (products expiring on or before this date)
      * @return a list of products expiring within the specified timeframe
      */
-    @Query("SELECT p FROM Product p WHERE p.purchaseDate IS NOT NULL AND p.warrantyMonths IS NOT NULL " +
-           "AND DATE_ADD(p.purchaseDate, p.warrantyMonths, 'MONTH') <= :endDate")
+    @Query(value = "SELECT * FROM product WHERE purchase_date IS NOT NULL AND warranty_months IS NOT NULL " +
+                   "AND DATEADD('MONTH', warranty_months, purchase_date) <= :endDate", nativeQuery = true)
     List<Product> findProductsExpiringWithin(@Param("endDate") LocalDate endDate);
 }
