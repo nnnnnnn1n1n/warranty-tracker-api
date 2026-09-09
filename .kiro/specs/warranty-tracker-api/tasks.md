@@ -205,7 +205,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ---
 
-- [ ] 6. Create Request/Response DTOs for API Contracts
+- [x] 6. Create Request/Response DTOs for API Contracts
 
 **Description**: Implement Data Transfer Objects (DTOs) for API requests and responses. These DTOs decouple the API contract from JPA entity structure and enable calculated fields like warrantyEndDate and warrantyStatus.
 
