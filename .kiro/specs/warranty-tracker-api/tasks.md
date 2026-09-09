@@ -99,7 +99,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ---
 
-- [ ] 3. Configure Spring Boot Application and H2 Database
+- [x] 3. Configure Spring Boot Application and H2 Database
 
 **Description**: Create application configuration files and main Spring Boot application class. Configure H2 in-memory database with Hibernate DDL auto-generation and optional H2 console for development.
 
