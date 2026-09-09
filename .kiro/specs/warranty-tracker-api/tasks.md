@@ -35,7 +35,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 ## Tasks
 ## Phase 1: Project Setup & API Documentation
 
-- [ ] 1. Configure OpenAPI/Swagger UI with Springdoc
+- [x] 1. Configure OpenAPI/Swagger UI with Springdoc
 
 **Description**: Set up OpenAPI/Swagger UI documentation endpoint using Springdoc OpenAPI library. Configure automatic API documentation generation that displays all endpoints, request/response schemas, and HTTP status codes.
 
