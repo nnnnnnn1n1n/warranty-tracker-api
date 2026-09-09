@@ -173,7 +173,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ---
 
-- [ ] 5. Implement Category and Product Repository Interfaces
+- [x] 5. Implement Category and Product Repository Interfaces
 
 **Description**: Create Spring Data JPA repository interfaces for Category and Product entities. Define custom query methods needed for expiring-soon filtering and product lookups.
 
