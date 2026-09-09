@@ -11,11 +11,6 @@ jacoco-*.exec
 coverage/
 *.lcov
 *.cobertura.xml
-build/reports/
-build/test-results/
-.gradle/test-results/
-**/target/surefire-reports/
-**/target/failsafe-reports/
 
 # IDE/Editor files
 .idea/
