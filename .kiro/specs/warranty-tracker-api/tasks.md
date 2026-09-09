@@ -285,7 +285,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ---
 
-- [ ] 8. Implement CategoryService with Business Logic
+- [x] 8. Implement CategoryService with Business Logic
 
 **Description**: Create CategoryService class that encapsulates category-related business logic. Handle retrieval of all categories and retrieval by ID with appropriate error handling.
 
