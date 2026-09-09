@@ -56,4 +56,4 @@ local.properties
 *.sublime-workspace
 
 # Kiro generated metadata
-.kiro/specs/*/tasks.meta
+.kiro/specs/*/tasks.meta.json
