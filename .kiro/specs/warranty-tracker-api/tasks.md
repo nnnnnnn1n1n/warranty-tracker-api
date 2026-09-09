@@ -135,7 +135,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ## Phase 2: Domain Model & Persistence
 
-- [ ] 4. Create Category and Product JPA Entities
+- [x] 4. Create Category and Product JPA Entities
 
 **Description**: Implement JPA entity classes for Category and Product with proper annotations, validation constraints, and relationships. Configure the one-to-many relationship between Category and Product.
 
