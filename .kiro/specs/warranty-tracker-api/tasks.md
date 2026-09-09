@@ -63,7 +63,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ---
 
-- [ ] 2. Set Up Gradle Project Structure and Dependencies
+- [x] 2. Set Up Gradle Project Structure and Dependencies
 
 **Description**: Configure Gradle build system with all required dependencies for Spring Boot 3, Spring Data JPA, H2 database, Lombok, validation, and testing frameworks. Set up project structure following Maven conventions.
 
