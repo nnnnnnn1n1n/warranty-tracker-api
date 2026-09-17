@@ -16,6 +16,16 @@ public class ProductNotFoundException extends RuntimeException {
     }
 
     /**
+     * Constructs a ProductNotFoundException with the specified product ID.
+     * Automatically generates message: "Product with ID {productId} not found"
+     *
+     * @param productId the ID of the product that was not found
+     */
+    public ProductNotFoundException(Long productId) {
+        super("Product with ID " + productId + " not found");
+    }
+
+    /**
      * Constructs a ProductNotFoundException with the specified message and cause.
      *
      * @param message the detail message

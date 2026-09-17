@@ -16,6 +16,16 @@ public class CategoryNotFoundException extends RuntimeException {
     }
 
     /**
+     * Constructs a CategoryNotFoundException with the specified category ID.
+     * Automatically generates message: "Category with ID {categoryId} not found"
+     *
+     * @param categoryId the ID of the category that was not found
+     */
+    public CategoryNotFoundException(Long categoryId) {
+        super("Category with ID " + categoryId + " not found");
+    }
+
+    /**
      * Constructs a CategoryNotFoundException with the specified message and cause.
      *
      * @param message the detail message

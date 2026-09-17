@@ -381,7 +381,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ---
 
-- [ ] 10. Create Custom Exception Classes and GlobalExceptionHandler
+- [x] 10. Create Custom Exception Classes and GlobalExceptionHandler
 
 **Description**: Implement custom exception classes for business errors (CategoryNotFoundException, ProductNotFoundException, ValidationException) and create a global exception handler that converts exceptions to standardized ErrorResponse objects with appropriate HTTP status codes.
 
@@ -441,7 +441,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ---
 
-- [ ] 11. Implement DataLoader for Sample Data Initialization
+- [x] 11. Implement DataLoader for Sample Data Initialization
 
 **Description**: Create DataLoader component that initializes the database with predefined categories and sample products representing all warranty statuses (ACTIVE, EXPIRING_SOON, EXPIRED) on application startup.
 
