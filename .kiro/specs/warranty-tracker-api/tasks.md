@@ -668,7 +668,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ## Phase 5: Unit Tests
 
-- [ ] 15. Write Unit Tests for WarrantyCalculator
+- [x] 15. Write Unit Tests for WarrantyCalculator
 
 **Description**: Implement comprehensive unit tests for WarrantyCalculator class. Test all three warranty status conditions and boundary cases to ensure accurate status determination.
 
@@ -715,7 +715,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ---
 
-- [ ] 16. Write Unit Tests for CategoryService
+- [x] 16. Write Unit Tests for CategoryService
 
 **Description**: Implement unit tests for CategoryService business logic. Mock CategoryRepository and test retrieval, error handling, and data transformation.
 
@@ -765,7 +765,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ---
 
-- [ ] 17. Write Unit Tests for ProductService
+- [x] 17. Write Unit Tests for ProductService
 
 **Description**: Implement comprehensive unit tests for ProductService business logic. Test all CRUD operations, validation rules, warranty calculations, and error scenarios using mocked repositories and services.
 
@@ -857,7 +857,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ---
 
-- [ ] 18. Write Unit Tests for CategoryController
+- [x] 18. Write Unit Tests for CategoryController
 
 **Description**: Implement **unit tests** for CategoryController REST endpoints. Test HTTP request/response handling, status codes, and JSON serialization using MockMvc with **mocked service dependencies**.
 
@@ -914,7 +914,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ---
 
-- [ ] 19. Write Unit Tests for ProductController
+- [x] 19. Write Unit Tests for ProductController
 
 **Description**: Implement **unit tests** for ProductController REST endpoints. Test all CRUD operations, validation error handling, status codes, and JSON serialization using MockMvc with **mocked service dependencies**.
 

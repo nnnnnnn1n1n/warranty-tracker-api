@@ -37,6 +37,15 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    
+    // Configure test logging for clear visibility
+    testLogging {
+        events "passed", "failed", "skipped"
+        exceptionFormat "full"
+        showStandardStreams false
+        showCauses true
+        showStackTraces true
+    }
 }
 
 bootRun {
