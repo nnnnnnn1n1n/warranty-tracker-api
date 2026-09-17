@@ -624,7 +624,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ---
 
-- [ ] 14. Implement Expiring-Soon Query Endpoint
+- [x] 14. Implement Expiring-Soon Query Endpoint
 
 **Description**: Implement the expiring-soon endpoint that filters products by warranty expiration timeline. Accept optional "days" query parameter (default 30) and return products expiring within specified range, sorted by warranty end date.
 

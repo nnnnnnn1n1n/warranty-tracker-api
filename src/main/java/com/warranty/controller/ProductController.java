@@ -51,6 +51,20 @@ public class ProductController {
     }
 
     /**
+     * Retrieve products expiring within a specified number of days.
+     * This endpoint MUST be defined before the /{id} endpoint to prevent Spring from interpreting "expiring-soon" as an ID value.
+     *
+     * @param days the number of days from today (query parameter, optional, default 30)
+     * @return ResponseEntity with HTTP 200 status and a list of ProductResponse objects
+     * @throws ValidationException if days parameter is negative (handled by GlobalExceptionHandler)
+     */
+    @GetMapping("/expiring-soon")
+    public ResponseEntity<List<ProductResponse>> getExpiringProducts(@RequestParam(required = false) Integer days) {
+        List<ProductResponse> expiringProducts = productService.getExpiringProducts(days);
+        return ResponseEntity.status(HttpStatus.OK).body(expiringProducts);
+    }
+
+    /**
      * Retrieve a specific product by its ID.
      *
      * @param id the product ID (path variable)
@@ -90,18 +104,5 @@ public class ProductController {
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * Retrieve products expiring within a specified number of days.
-     *
-     * @param days the number of days from today (query parameter, optional, default 30)
-     * @return ResponseEntity with HTTP 200 status and a list of ProductResponse objects
-     * @throws ValidationException if days parameter is negative (handled by GlobalExceptionHandler)
-     */
-    @GetMapping("/expiring-soon")
-    public ResponseEntity<List<ProductResponse>> getExpiringProducts(@RequestParam(required = false) Integer days) {
-        List<ProductResponse> expiringProducts = productService.getExpiringProducts(days);
-        return ResponseEntity.status(HttpStatus.OK).body(expiringProducts);
     }
 }
