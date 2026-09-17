@@ -491,7 +491,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ## Phase 4: REST API Controllers
 
-- [ ] 12. Create CategoryController REST Endpoints
+- [x] 12. Create CategoryController REST Endpoints
 
 **Description**: Implement CategoryController with REST endpoints for retrieving all categories and retrieving a specific category by ID. Handle URL routing, HTTP methods, status codes, and response serialization.
 
@@ -540,7 +540,7 @@ The Warranty Tracker REST API is a Spring Boot 3 application that provides REST 
 
 ---
 
-- [ ] 13. Create ProductController REST Endpoints (CRUD)
+- [x] 13. Create ProductController REST Endpoints (CRUD)
 
 **Description**: Implement ProductController with REST endpoints for CRUD operations on products: create (POST), retrieve all (GET), retrieve by ID (GET), update (PUT), and delete (DELETE). Handle request validation, response serialization, and appropriate HTTP status codes.
 
