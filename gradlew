@@ -47,14 +47,18 @@ app_path=$0
 
 # Need this for daisy-chained symlinks.
 while
-    APP_HOME=${app_path%"${app_path##*/}"}# leaves a trailing /; empty if no leading path
+    APP_HOME=${app_path%"${app_path##*/}"}
     [ -h "$app_path" ]
 do
     ls=$(ls -ld "$app_path")
-    link=${ls##*' -> '}# drops everything before " -> "
-    case $link in#(
-      /*)   app_path=$link ;;#(
-      *)    app_path=$APP_HOME$link ;;
+    link=${ls##*' -> '}
+    case $link in
+      /*)
+        app_path=$link
+        ;;
+      *)
+        app_path=$APP_HOME$link
+        ;;
     esac
 done
 
