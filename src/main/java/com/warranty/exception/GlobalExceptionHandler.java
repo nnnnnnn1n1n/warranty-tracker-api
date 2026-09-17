@@ -2,7 +2,9 @@ package com.warranty.exception;
 
 import com.warranty.dto.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -91,11 +93,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles MethodArgumentNotValidException (validation constraint violations).
      * Returns HTTP 400 Bad Request status with field-level error details.
+     * Overrides parent method from ResponseEntityExceptionHandler to provide custom response format.
      */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
-            HttpServletRequest request) {
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
         log.warn("Validation constraint violation");
 
         List<ErrorResponse.FieldError> fieldErrors = ex.getBindingResult()
@@ -112,7 +117,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 "Validation Error",
                 "Validation failed for one or more fields",
-                request.getRequestURI(),
+                request.getDescription(false).replace("uri=", ""),
                 fieldErrors
         );
 
