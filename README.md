@@ -135,3 +135,53 @@ Once the application is running, you can access:
 - **URL:** http://localhost:8080/swagger-ui/index.html
 - **Purpose:** Interactive API documentation and testing interface
 - **Usage:** Explore the available REST endpoints and call them directly from the browser
+
+## Running Tests
+
+The project includes unit tests for services, repositories, and controllers.
+
+### Run All Tests
+
+```bash
+./gradlew test
+```
+
+On Windows:
+
+```bash
+gradlew.bat test
+```
+
+### Run Specific Test Class
+
+```bash
+./gradlew test --tests WarrantyCalculatorTest
+```
+
+On Windows:
+
+```bash
+gradlew.bat test --tests WarrantyCalculatorTest
+```
+
+### Run Tests with Detailed Output
+
+```bash
+./gradlew test --info
+```
+
+On Windows:
+
+```bash
+gradlew.bat test --info
+```
+
+### View Test Results
+
+After running tests, test results are available in:
+
+```
+build/reports/tests/test/index.html
+```
+
+Open this file in a browser to view a detailed test report with pass/fail status for each test.
