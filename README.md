@@ -9,6 +9,7 @@ Before running the Warranty Tracker API, ensure you have the following installed
 - **Git** — For cloning the repository
 - **Java 21** — The project requires JDK 21 or later
 - **Gradle** — The project uses Gradle wrapper, so a separate Gradle installation is optional (the wrapper is included)
+- **Docker & Docker Compose** — Required for running PostgreSQL locally (optional for development with in-memory database)
 
 ## How to Run
 
@@ -24,33 +25,111 @@ Before running the Warranty Tracker API, ensure you have the following installed
    cd warranty-tracker-api
    ```
 
-3. **Run the application using Gradle wrapper:**
-   ```bash
-   ./gradlew bootRun
-   ```
-   On Windows:
-   ```bash
-   gradlew.bat bootRun
-   ```
+3. **Choose your database option and run the application** — See Database Options below.
 
-4. **Wait for the application to start** — You should see:
-   ```
-   Tomcat started on port(s): 8080 (http)
-   ```
+### Database Options
 
-The application uses an H2 in-memory database for the current local setup. Data persists during the application session and is reset when the application restarts.
+The application supports two database configurations for local development:
+
+#### Option 1: H2 In-Memory Database (Default)
+
+The application uses an H2 in-memory database by default. No additional setup is required.
+
+**Run the application:**
+
+```bash
+./gradlew bootRun
+```
+
+On Windows:
+
+```bash
+gradlew.bat bootRun
+```
+
+**Characteristics:**
+- Data persists during the application session and is reset when the application restarts
+- Quick testing and development without external dependencies
+- H2 Console available at http://localhost:8080/h2-console
+
+#### Option 2: PostgreSQL (Persistent Database)
+
+The project provides Docker Compose configuration for running PostgreSQL locally. This profile is recommended for development that requires persistent data across application restarts.
+
+**Prerequisites:**
+- Docker and Docker Compose must be installed
+
+**Step 1: Start PostgreSQL**
+
+```bash
+docker-compose up -d
+```
+
+The container will start in the background. PostgreSQL will be available at:
+- **Host:** localhost
+- **Port:** 5432
+- **Database:** `warranty_tracker`
+- **Username:** `postgres`
+- **Password:** `postgres`
+
+**Step 2: Verify PostgreSQL is Running**
+
+```bash
+docker-compose ps
+```
+
+You should see the `warranty-tracker-postgres` container with status "Up". To verify the database connection directly:
+
+```bash
+docker-compose exec postgres pg_isready -U postgres
+```
+
+**Step 3: Run the application with PostgreSQL profile**
+
+```bash
+./gradlew bootRun --args='--spring.profiles.active=postgresql'
+```
+
+On Windows:
+
+```bash
+gradlew.bat bootRun --args='--spring.profiles.active=postgresql'
+```
+
+**Managing PostgreSQL:**
+
+Stop PostgreSQL (data is preserved):
+
+```bash
+docker-compose down
+```
+
+Remove PostgreSQL container and all data:
+
+```bash
+docker-compose down -v
+```
+
+### Wait for Application Startup
+
+After running the application with either option, you should see:
+
+```
+Tomcat started on port(s): 8080 (http)
+```
 
 ## Available URLs
 
 Once the application is running, you can access:
 
-### H2 Console
+### H2 Console (H2 Database Only)
 - **URL:** http://localhost:8080/h2-console
 - **Purpose:** Web interface to explore and query the H2 in-memory database
 - **Connection Details:** Use the following (from `application.properties`):
   - JDBC URL: `jdbc:h2:mem:warranty_db`
   - Username: `sa`
   - Password: (leave empty)
+- **Note:** Only available when using the H2 in-memory database
 
 ### Swagger UI
 - **URL:** http://localhost:8080/swagger-ui/index.html
