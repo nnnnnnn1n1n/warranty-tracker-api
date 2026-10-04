@@ -44,10 +44,10 @@ This implementation plan delivers the GET /api/products endpoint with pagination
 
 ## Tasks
 
-- [ ] 1. Create config/ClockConfig.java with @Bean Clock for Asia/Bangkok timezone
-- [ ] 2. Update ProductService to inject Clock and add getCurrentDate() method
+- [x] 1. Create config/ClockConfig.java with @Bean Clock for Asia/Bangkok timezone
+- [x] 2. Update ProductService to inject Clock and add getCurrentDate() method
 - [ ] 3. Update ProductService.listProducts() to call getCurrentDate() and pass to repository
-- [ ] 4. Update ProductServiceTest to mock Clock for deterministic dates
+- [x] 4. Update ProductServiceTest to mock Clock for deterministic dates
 - [ ] 5. Verify existing tests still pass
 - [ ] 6. Create PaginationMetadata schema in OpenAPI
 - [ ] 7. Create ProductListResponse schema
@@ -74,8 +74,10 @@ This implementation plan delivers the GET /api/products endpoint with pagination
 - [ ] 28. Call productRepository.searchProducts()
 - [ ] 29. Convert ProductSearchResult to ProductListResponse
 - [ ] 30. Update convertToResponse() to use getCurrentDate()
-- [ ] 31. Create epository/ProductRepositoryCustom interface
-- [ ] 32. Create epository/ProductRepositoryCustomImpl
+- [ ] 31. Create 
+epository/ProductRepositoryCustom interface
+- [ ] 32. Create 
+epository/ProductRepositoryCustomImpl
 - [ ] 33. Implement uildWhereClause() for category and status filters
 - [ ] 34. Implement uildStatusCondition() for warranty status logic
 - [ ] 35. Implement uildOrderByClause() with whitelist validation

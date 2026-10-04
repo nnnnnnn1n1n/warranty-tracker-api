@@ -14,6 +14,7 @@ import com.warranty.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +29,18 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final Clock clock;
+
+    /**
+     * Gets the current date using the application Clock.
+     * This method ensures all date calculations use a consistent, timezone-aware clock
+     * configured for Asia/Bangkok timezone.
+     *
+     * @return LocalDate representing the current date in the configured timezone
+     */
+    public LocalDate getCurrentDate() {
+        return LocalDate.now(clock);
+    }
 
     /**
      * Creates a new product with validation and warranty calculation.
