@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Validate File Encoding (UTF-8 without BOM)",
+      "trigger": "PostFileSave",
+      "matcher": "\\.(java|properties|ya?ml|json|md|sql|gradle|xml)$",
+      "action": {
+        "type": "command",
+        "command": "pwsh -NoProfile -File .kiro/scripts/validate-file-encoding.ps1 -FilePath \"{{filePath}}\""
+      }
+    }
+  ]
+}
