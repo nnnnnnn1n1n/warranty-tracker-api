@@ -113,14 +113,16 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
     /**
      * Build the ORDER BY clause with field validation.
      * Validates sort field against whitelist to prevent SQL injection.
+     * Uses PostgreSQL-compatible syntax for warranty end date calculation.
      */
     private String buildOrderByClause(String sortField, String sortDirection) {
         // Whitelist of allowed sort fields
+        // PostgreSQL syntax: p.purchase_date + (p.warranty_months || ' months')::interval
         Map<String, String> fieldMapping = Map.ofEntries(
                 Map.entry("id", "p.id"),
                 Map.entry("name", "p.name"),
                 Map.entry("purchaseDate", "p.purchase_date"),
-                Map.entry("warrantyEndDate", "DATE_ADD(p.purchase_date, INTERVAL p.warranty_months MONTH)"),
+                Map.entry("warrantyEndDate", "p.purchase_date + (p.warranty_months || ' months')::interval"),
                 Map.entry("warrantyMonths", "p.warranty_months"),
                 Map.entry("categoryId", "p.category_id")
         );

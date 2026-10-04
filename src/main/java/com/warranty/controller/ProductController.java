@@ -3,6 +3,8 @@ package com.warranty.controller;
 import com.warranty.dto.request.CreateProductRequest;
 import com.warranty.dto.request.UpdateProductRequest;
 import com.warranty.dto.response.ProductResponse;
+import com.warranty.dto.response.ProductListResponse;
+import com.warranty.exception.ValidationException;
 import com.warranty.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
 
 /**
  * REST Controller for Product endpoints.
@@ -40,14 +43,85 @@ public class ProductController {
     }
 
     /**
-     * Retrieve all products.
+     * Retrieve paginated list of products with optional filtering and sorting.
+     * Supports limit/offset pagination, filtering by category and warranty status,
+     * and sorting by product attributes.
      *
-     * @return ResponseEntity with HTTP 200 status and a list of ProductResponse objects
+     * @param limit the maximum number of products to return (query parameter, default 20)
+     * @param offset the number of products to skip (query parameter, default 0)
+     * @param categoryId filter by category ID (query parameter, optional)
+     * @param status filter by warranty status: ACTIVE, EXPIRING_SOON, or EXPIRED (query parameter, optional)
+     * @param sort sort criteria in format "field,direction" (query parameter, default "id,asc")
+     * @return ResponseEntity with HTTP 200 status and ProductListResponse containing paginated products and pagination metadata
+     * @throws ValidationException if any parameters fail validation (handled by GlobalExceptionHandler)
      */
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> getAllProducts() {
-        List<ProductResponse> products = productService.getAllProducts();
-        return ResponseEntity.status(HttpStatus.OK).body(products);
+    public ResponseEntity<ProductListResponse> listProducts(
+            @RequestParam(defaultValue = "20") Integer limit,
+            @RequestParam(defaultValue = "0") Integer offset,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "id,asc") String sort) {
+        
+        // Validate limit > 0
+        if (limit <= 0) {
+            throw new ValidationException("Limit must be greater than zero");
+        }
+
+        // Validate offset >= 0
+        if (offset < 0) {
+            throw new ValidationException("Limit and offset must be non-negative integers");
+        }
+
+        // Validate status is null or one of {ACTIVE, EXPIRING_SOON, EXPIRED}
+        if (status != null) {
+            Set<String> validStatuses = Set.of("ACTIVE", "EXPIRING_SOON", "EXPIRED");
+            if (!validStatuses.contains(status)) {
+                throw new ValidationException("Status must be one of: ACTIVE, EXPIRING_SOON, EXPIRED");
+            }
+        }
+        
+        // Validate and parse sort parameter
+        String sortField;
+        String sortDirection;
+        
+        // Validate sort format: must be "field,direction"
+        if (sort == null || !sort.contains(",")) {
+            throw new ValidationException("Sort parameter must be in format 'field,direction' (e.g., 'name,asc')");
+        }
+        
+        String[] sortParts = sort.split(",", 2);
+        if (sortParts.length != 2 || sortParts[0].trim().isEmpty() || sortParts[1].trim().isEmpty()) {
+            throw new ValidationException("Sort parameter must be in format 'field,direction' (e.g., 'name,asc')");
+        }
+        
+        sortField = sortParts[0].trim();
+        sortDirection = sortParts[1].trim();
+        
+        // Validate sort field is in whitelist
+        Set<String> validSortFields = Set.of("id", "name", "purchaseDate", "warrantyEndDate", "warrantyMonths", "categoryId");
+        if (!validSortFields.contains(sortField)) {
+            throw new ValidationException("Invalid sort field: " + sortField + ". Supported fields are: id, name, purchaseDate, warrantyEndDate, warrantyMonths, categoryId");
+        }
+        
+        // Validate sort direction
+        Set<String> validDirections = Set.of("asc", "desc");
+        if (!validDirections.contains(sortDirection.toLowerCase())) {
+            throw new ValidationException("Sort direction must be either 'asc' or 'desc'");
+        }
+        
+        // Normalize direction to lowercase for consistency
+        sortDirection = sortDirection.toLowerCase();
+        
+        ProductListResponse response = productService.listProducts(
+                categoryId,
+                status,
+                sortField,
+                sortDirection,
+                limit,
+                offset
+        );
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     /**
