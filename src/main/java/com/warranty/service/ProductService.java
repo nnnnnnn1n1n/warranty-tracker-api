@@ -1,8 +1,12 @@
 package com.warranty.service;
 
+import com.warranty.dto.internal.ProductSearchResult;
+import com.warranty.dto.internal.SearchFilters;
 import com.warranty.dto.request.CreateProductRequest;
 import com.warranty.dto.request.UpdateProductRequest;
 import com.warranty.dto.response.CategoryResponse;
+import com.warranty.dto.response.PaginationMetadata;
+import com.warranty.dto.response.ProductListResponse;
 import com.warranty.dto.response.ProductResponse;
 import com.warranty.entity.Category;
 import com.warranty.entity.Product;
@@ -43,6 +47,74 @@ public class ProductService {
     }
 
     /**
+     * Retrieves a paginated, filtered, and sorted list of products.
+     *
+     * Filtering:
+     * - By category ID (if provided)
+     * - By warranty status: ACTIVE, EXPIRING_SOON, or EXPIRED (if provided)
+     *
+     * Sorting:
+     * - By specified field (id, name, purchaseDate, warrantyEndDate, warrantyMonths, categoryId)
+     * - In specified direction (asc or desc)
+     *
+     * Pagination:
+     * - Returns a page of products based on limit and offset
+     * - Includes pagination metadata (totalCount, limit, offset, hasMore)
+     *
+     * Warranty status calculation uses the current date from the application Clock (Asia/Bangkok),
+     * ensuring consistent date handling across filtering, sorting, and response assembly.
+     *
+     * @param categoryId the category ID to filter by (nullable; if null, no category filtering)
+     * @param status the warranty status to filter by (nullable; if null, no status filtering)
+     * @param sortField the field to sort by (default "id")
+     * @param sortDirection the sort direction: "asc" or "desc" (case-insensitive)
+     * @param limit the maximum number of products per page (must be > 0)
+     * @param offset the number of products to skip (must be >= 0)
+     * @return ProductListResponse containing paginated product list and pagination metadata
+     * @throws ValidationException if parameters are invalid
+     */
+    public ProductListResponse listProducts(
+            Long categoryId,
+            String status,
+            String sortField,
+            String sortDirection,
+            int limit,
+            int offset) {
+
+        // Get business date for consistent warranty calculations
+        LocalDate today = getCurrentDate();
+
+        // Create search filters DTO with category, status, and business date
+        SearchFilters filters = new SearchFilters(categoryId, status, today);
+
+        // Call custom repository with filters and pagination parameters
+        ProductSearchResult searchResult = productRepository.searchProducts(
+                filters,
+                sortField,
+                sortDirection,
+                limit,
+                offset
+        );
+
+        // Convert Product entities to ProductResponse DTOs with calculated warranty fields
+        List<ProductResponse> productResponses = searchResult.getProducts()
+                .stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+
+        // Build pagination metadata
+        PaginationMetadata pagination = new PaginationMetadata(
+                searchResult.getTotalCount(),
+                limit,
+                offset,
+                (offset + limit) < searchResult.getTotalCount()
+        );
+
+        // Assemble and return wrapped response
+        return new ProductListResponse(productResponses, pagination);
+    }
+
+    /**
      * Creates a new product with validation and warranty calculation.
      *
      * Validation:
@@ -69,7 +141,7 @@ public class ProductService {
                 ));
 
         // Validate purchase date is not in the future
-        if (request.getPurchaseDate().isAfter(LocalDate.now())) {
+        if (request.getPurchaseDate().isAfter(getCurrentDate())) {
             throw new ValidationException("Purchase date cannot be in the future");
         }
 
@@ -125,7 +197,7 @@ public class ProductService {
                 ));
 
         // Validate purchase date is not in the future
-        if (request.getPurchaseDate().isAfter(LocalDate.now())) {
+        if (request.getPurchaseDate().isAfter(getCurrentDate())) {
             throw new ValidationException("Purchase date cannot be in the future");
         }
 
@@ -210,7 +282,7 @@ public class ProductService {
             throw new ValidationException("Days parameter must be non-negative");
         }
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = getCurrentDate();
         LocalDate endDateTo = today.plusDays(daysToCheck);
 
         // Query products expiring within the range
@@ -240,18 +312,24 @@ public class ProductService {
      *
      * Calculated fields:
      * - warrantyEndDate: purchaseDate + warrantyMonths
-     * - warrantyStatus: calculated using WarrantyCalculator based on current date
+     * - warrantyStatus: calculated using WarrantyCalculator based on current date (from Clock)
+     *
+     * Uses getCurrentDate() to ensure consistent timezone-aware date handling throughout
+     * the service, matching the date used for filtering and query operations.
      *
      * @param product the Product entity to convert
      * @return ProductResponse with all fields including calculated values
      */
     private ProductResponse convertToResponse(Product product) {
+        // Get business date for warranty calculations (from Clock, Asia/Bangkok timezone)
+        LocalDate today = getCurrentDate();
+
         // Calculate warranty end date
         LocalDate warrantyEndDate = product.getPurchaseDate()
                 .plusMonths(product.getWarrantyMonths());
 
-        // Calculate warranty status using WarrantyCalculator
-        String warrantyStatus = WarrantyCalculator.calculateStatus(warrantyEndDate, LocalDate.now())
+        // Calculate warranty status using WarrantyCalculator with business date
+        String warrantyStatus = WarrantyCalculator.calculateStatus(warrantyEndDate, today)
                 .toString();
 
         // Build category response

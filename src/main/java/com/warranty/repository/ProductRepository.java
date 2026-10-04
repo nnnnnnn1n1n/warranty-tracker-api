@@ -12,9 +12,10 @@ import java.util.List;
 /**
  * Repository interface for Product entity.
  * Extends JpaRepository to provide CRUD operations and custom query methods.
+ * Also extends ProductRepositoryCustom to provide complex filtering, sorting, and pagination operations.
  */
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long>, ProductRepositoryCustom {
 
     /**
      * Find all products whose warranty expires on or before the specified end date.

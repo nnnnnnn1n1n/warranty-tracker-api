@@ -46,9 +46,9 @@ This implementation plan delivers the GET /api/products endpoint with pagination
 
 - [x] 1. Create config/ClockConfig.java with @Bean Clock for Asia/Bangkok timezone
 - [x] 2. Update ProductService to inject Clock and add getCurrentDate() method
-- [ ] 3. Update ProductService.listProducts() to call getCurrentDate() and pass to repository
+- [x] 3. Update ProductService.listProducts() to call getCurrentDate() and pass to repository
 - [x] 4. Update ProductServiceTest to mock Clock for deterministic dates
-- [ ] 5. Verify existing tests still pass
+- [x] 5. Verify existing tests still pass
 - [ ] 6. Create PaginationMetadata schema in OpenAPI
 - [ ] 7. Create ProductListResponse schema
 - [ ] 8. Create WarrantyStatus enum schema
@@ -85,8 +85,8 @@ epository/ProductRepositoryCustomImpl
 - [ ] 37. Set bind parameters (categoryId, limit, offset)
 - [ ] 38. Use DATE literals for date comparisons in WHERE clause
 - [ ] 39. Update ProductRepository to extend ProductRepositoryCustom
-- [ ] 40. Add db.warranty-end-date-expr property to pplication.properties
-- [ ] 41. Add db.warranty-end-date-expr property to pplication-postgresql.yml
+- [ ] 40. Add db.warranty-end-date-expr property to application.properties
+- [ ] 41. Add db.warranty-end-date-expr property to application-postgresql.yml
 - [ ] 42. Write unit tests for controller parameter validation
 - [ ] 43. Write unit tests for service with mocked repository
 - [ ] 44. Write integration tests for pagination

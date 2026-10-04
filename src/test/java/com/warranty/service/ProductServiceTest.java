@@ -19,6 +19,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.time.Clock;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +46,9 @@ class ProductServiceTest {
     @Mock
     private CategoryRepository categoryRepository;
 
+
+    @Mock(lenient = true)
+    private Clock clock;
     @InjectMocks
     private ProductService productService;
 
@@ -55,7 +61,12 @@ class ProductServiceTest {
     @BeforeEach
     void setUp() {
         // Initialize test data
-        today = LocalDate.now();
+        // Configure Clock mock to return fixed date for deterministic tests
+        LocalDate fixedDate = LocalDate.of(2024, 1, 15);
+        ZonedDateTime fixedZonedDateTime = fixedDate.atStartOfDay(ZoneId.systemDefault());
+        when(clock.instant()).thenReturn(fixedZonedDateTime.toInstant());
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+        today = fixedDate;
         testCategory = new Category(1L, "Kitchen Appliances", null);
         
         testProduct = new Product();
