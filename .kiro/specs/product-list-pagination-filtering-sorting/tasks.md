@@ -1,4 +1,4 @@
-﻿# Implementation Plan: Product List — Pagination, Filtering & Sorting
+# Implementation Plan: Product List — Pagination, Filtering & Sorting
 
 ## Overview
 
@@ -76,11 +76,11 @@ This implementation plan delivers the GET /api/products endpoint with pagination
 - [x] 30. Update convertToResponse() to use getCurrentDate()
 - [x] 31. Create 
 epository/ProductRepositoryCustom interface
-- [ ] 32. Create 
+- [x] 32. Create 
 epository/ProductRepositoryCustomImpl
-- [ ] 33. Implement uildWhereClause() for category and status filters
-- [ ] 34. Implement uildStatusCondition() for warranty status logic
-- [ ] 35. Implement uildOrderByClause() with whitelist validation
+- [ ] 33. Implement buildWhereClause() for category and status filters
+- [ ] 34. Implement buildStatusCondition() for warranty status logic
+- [ ] 35. Implement buildOrderByClause() with whitelist validation
 - [ ] 36. Implement searchProducts() with COUNT and data queries
 - [ ] 37. Set bind parameters (categoryId, limit, offset)
 - [ ] 38. Use DATE literals for date comparisons in WHERE clause

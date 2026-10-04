@@ -1,11 +1,13 @@
-package com.warranty.repository;
+﻿package com.warranty.repository;
 
 import com.warranty.dto.internal.ProductSearchResult;
 import com.warranty.dto.internal.SearchFilters;
 import com.warranty.entity.Product;
+import com.warranty.exception.ValidationException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -28,6 +30,9 @@ import java.util.Map;
 public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
 
     private final EntityManager entityManager;
+
+    @Value("${db.warranty-end-date-expr}")
+    private String warrantyEndDateExpr;
 
     /**
      * Search products with filtering, sorting, and pagination.
@@ -104,32 +109,42 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
      * - EXPIRED: today > warrantyEndDate
      */
     private String buildStatusCondition(String status, LocalDate today) {
-        // This is a stub; full implementation will use database-specific expressions
-        // from application.properties or profile-specific configurations.
-        // For now, return a placeholder that will be implemented in a later task.
-        return "1=1"; // Placeholder: all products pass the filter
+        String expr = warrantyEndDateExpr;
+        String todayStr = today.toString();
+        String todayPlus30Str = today.plusDays(30).toString();
+
+        return switch(status) {
+            case "ACTIVE" ->
+                expr + " > DATE '" + todayPlus30Str + "'";
+            case "EXPIRING_SOON" ->
+                expr + " >= DATE '" + todayStr + "' AND " +
+                expr + " <= DATE '" + todayPlus30Str + "'";
+            case "EXPIRED" ->
+                expr + " < DATE '" + todayStr + "'";
+            default ->
+                throw new ValidationException("Invalid warranty status: " + status);
+        };
     }
 
     /**
      * Build the ORDER BY clause with field validation.
      * Validates sort field against whitelist to prevent SQL injection.
-     * Uses PostgreSQL-compatible syntax for warranty end date calculation.
+     * Uses the injected warrantyEndDateExpr for warranty end date sorting.
      */
     private String buildOrderByClause(String sortField, String sortDirection) {
         // Whitelist of allowed sort fields
-        // PostgreSQL syntax: p.purchase_date + (p.warranty_months || ' months')::interval
         Map<String, String> fieldMapping = Map.ofEntries(
                 Map.entry("id", "p.id"),
                 Map.entry("name", "p.name"),
                 Map.entry("purchaseDate", "p.purchase_date"),
-                Map.entry("warrantyEndDate", "p.purchase_date + (p.warranty_months || ' months')::interval"),
+                Map.entry("warrantyEndDate", warrantyEndDateExpr),
                 Map.entry("warrantyMonths", "p.warranty_months"),
                 Map.entry("categoryId", "p.category_id")
         );
 
         if (!fieldMapping.containsKey(sortField)) {
-            // Default to id,asc if invalid field
-            return " ORDER BY p.id ASC";
+            throw new ValidationException("Invalid sort field: " + sortField + 
+                ". Supported fields are: id, name, purchaseDate, warrantyEndDate, warrantyMonths, categoryId");
         }
 
         String columnExpr = fieldMapping.get(sortField);
