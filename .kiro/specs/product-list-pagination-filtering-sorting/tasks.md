@@ -98,11 +98,11 @@ epository/ProductRepositoryCustomImpl
   - Default parameters (no query params) return 200
 - [x] 43. Write unit tests for service with mocked repository
 - [x] 44. Write integration tests for pagination
-- [ ] 45. Write integration tests for category filtering
-- [ ] 46. Write integration tests for warranty status filtering
-- [ ] 47. Write integration tests for combined filters
-- [ ] 48. Write integration tests for sorting by all fields
-- [ ] 49. Write integration tests for edge cases
+- [x] 45. Write integration tests for category filtering
+- [x] 46. Write integration tests for warranty status filtering
+- [x] 47. Write integration tests for combined filters
+- [x] 48. Write integration tests for sorting by all fields
+- [x] 49. Write integration tests for edge cases
 - [ ] 50. Verify all existing tests pass
 
 ---
