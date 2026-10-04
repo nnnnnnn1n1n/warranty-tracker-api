@@ -107,7 +107,7 @@ public class ProductService {
                 searchResult.getTotalCount(),
                 limit,
                 offset,
-                (offset + limit) < searchResult.getTotalCount()
+                (offset + productResponses.size()) < searchResult.getTotalCount()
         );
 
         // Assemble and return wrapped response

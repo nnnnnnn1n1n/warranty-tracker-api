@@ -78,16 +78,16 @@ This implementation plan delivers the GET /api/products endpoint with pagination
 epository/ProductRepositoryCustom interface
 - [x] 32. Create 
 epository/ProductRepositoryCustomImpl
-- [ ] 33. Implement buildWhereClause() for category and status filters
-- [ ] 34. Implement buildStatusCondition() for warranty status logic
-- [ ] 35. Implement buildOrderByClause() with whitelist validation
-- [ ] 36. Implement searchProducts() with COUNT and data queries
-- [ ] 37. Set bind parameters (categoryId, limit, offset)
-- [ ] 38. Use DATE literals for date comparisons in WHERE clause
-- [ ] 39. Update ProductRepository to extend ProductRepositoryCustom
-- [ ] 40. Add db.warranty-end-date-expr property to application.properties
-- [ ] 41. Add db.warranty-end-date-expr property to application-postgresql.yml
-- [ ] 42. Create ProductControllerTest.java with unit tests for GET /api/products parameter validation
+- [x] 33. Implement buildWhereClause() for category and status filters
+- [x] 34. Implement buildStatusCondition() for warranty status logic
+- [x] 35. Implement buildOrderByClause() with whitelist validation
+- [x] 36. Implement searchProducts() with COUNT and data queries
+- [x] 37. Set bind parameters (categoryId, limit, offset)
+- [x] 38. Use DATE literals for date comparisons in WHERE clause
+- [x] 39. Update ProductRepository to extend ProductRepositoryCustom
+- [x] 40. Add db.warranty-end-date-expr property to application.properties
+- [x] 41. Add db.warranty-end-date-expr property to application-postgresql.yml
+- [x] 42. Create ProductControllerTest.java with unit tests for GET /api/products parameter validation
   - File: src/test/java/com/warranty/controller/ProductControllerTest.java
   - Use @ExtendWith(MockitoExtension.class) with MockMvc standaloneSetup (mirror CategoryControllerTest pattern)
   - Mock ProductService
@@ -96,8 +96,8 @@ epository/ProductRepositoryCustomImpl
   - Test cases for status validation: status=ACTIVE returns 200; status=EXPIRING_SOON returns 200; status=EXPIRED returns 200; status=active (lowercase) returns 400 with message "Status must be one of: ACTIVE, EXPIRING_SOON, EXPIRED"; status=INVALID returns 400; status omitted returns 200
   - Test cases for sort validation: valid sort fields (id,name,purchaseDate,warrantyMonths) return 200; invalid sort field returns 400; valid directions (asc,desc) return 200; missing comma separator returns 400
   - Default parameters (no query params) return 200
-- [ ] 43. Write unit tests for service with mocked repository
-- [ ] 44. Write integration tests for pagination
+- [x] 43. Write unit tests for service with mocked repository
+- [x] 44. Write integration tests for pagination
 - [ ] 45. Write integration tests for category filtering
 - [ ] 46. Write integration tests for warranty status filtering
 - [ ] 47. Write integration tests for combined filters

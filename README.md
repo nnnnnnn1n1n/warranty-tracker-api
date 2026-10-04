@@ -164,6 +164,58 @@ On Windows:
 gradlew.bat test --tests WarrantyCalculatorTest
 ```
 
+### Run Integration Tests
+
+Integration tests verify end-to-end behavior of API endpoints with a real database context. These tests use @SpringBootTest with an H2 in-memory database.
+
+**Run all integration tests:**
+
+```bash
+./gradlew test --tests "*IntegrationTest"
+```
+
+On Windows:
+
+```bash
+gradlew.bat test --tests "*IntegrationTest"
+```
+
+**Run a specific integration test class:**
+
+```bash
+./gradlew test --tests PaginationIntegrationTest
+```
+
+On Windows:
+
+```bash
+gradlew.bat test --tests PaginationIntegrationTest
+```
+
+**Run a specific test method within an integration test class:**
+
+```bash
+./gradlew test --tests PaginationIntegrationTest.testPagination_FirstPage
+```
+
+On Windows:
+
+```bash
+gradlew.bat test --tests PaginationIntegrationTest.testPagination_FirstPage
+```
+
+**Available Integration Tests:**
+
+- `PaginationIntegrationTest` — Tests pagination of GET /api/products endpoint (27 tests)
+  - Basic pagination: first page, second page, last page
+  - Default parameters and metadata validation
+  - Edge cases: single product per page, offset beyond results, large limits
+  - Pagination with filters: category, status, and combined filters
+  - Sorting integration with pagination
+  - Sequential pagination consistency
+  - Response structure validation
+  - Partial page handling
+
 ### Run Tests with Detailed Output
 
 ```bash

@@ -55,3 +55,97 @@ tasks.named('test') {
 bootRun {
     systemProperty 'spring.profiles.active', 'dev'
 }
+
+// Task to validate file encoding (UTF-8 without BOM)
+task checkFileEncoding {
+    description = 'Validates that project text files are UTF-8 without BOM'
+    group = 'verification'
+    
+    doLast {
+        // Define file patterns to check
+        def filePatterns = [
+            'src/**/*.java',
+            'src/**/*.properties',
+            'src/**/*.yaml',
+            'src/**/*.yml',
+            'src/**/*.json',
+            'src/**/*.sql',
+            'src/**/*.gradle',
+            'src/**/*.xml',
+            'src/**/*.md',
+            '.kiro/**/*.yaml',
+            '.kiro/**/*.yml',
+            '.kiro/**/*.json',
+            '.kiro/**/*.md',
+            '*.gradle',
+            '*.md',
+            '*.yaml',
+            '*.yml',
+            'gradle.properties'
+        ]
+        
+        def validatorScript = '.kiro/scripts/validate-file-encoding.ps1'
+        
+        // Check if validator script exists
+        if (!file(validatorScript).exists()) {
+            throw new GradleException("Validator script not found: $validatorScript")
+        }
+        
+        // Collect all files to validate
+        def filesToCheck = [] as Set
+        filePatterns.each { pattern ->
+            fileTree(dir: rootDir, include: pattern).each { f ->
+                if (f.isFile()) {
+                    filesToCheck.add(f)
+                }
+            }
+        }
+        
+        if (filesToCheck.isEmpty()) {
+            println "No files matched for encoding validation"
+            return
+        }
+        
+        println "Checking ${filesToCheck.size()} file(s) for UTF-8 without BOM encoding..."
+        
+        def failedFiles = []
+        def passedCount = 0
+        
+        filesToCheck.each { file ->
+            def relativePath = rootDir.toPath().relativize(file.toPath()).toString()
+            
+            // Run validator script
+            def process = [
+                'powershell.exe', '-NoProfile', '-File', validatorScript,
+                '-FilePath', file.absolutePath
+            ].execute()
+            
+            def exitCode = process.waitFor()
+            def errorOutput = process.errorStream.text
+            
+            if (exitCode == 0) {
+                passedCount++
+            } else if (exitCode == 1) {
+                failedFiles.add(relativePath)
+                println "  ✗ $relativePath"
+                if (errorOutput) {
+                    println "    ${errorOutput.split('\n').first()}"
+                }
+            } else {
+                // Exit code 2 or other: file not readable
+                println "  ⚠ $relativePath (could not validate: $errorOutput)"
+            }
+        }
+        
+        println ""
+        println "Encoding validation complete: $passedCount passed, ${failedFiles.size()} failed"
+        
+        if (!failedFiles.isEmpty()) {
+            def failureMessage = "The following files do not use UTF-8 without BOM:\n"
+            failedFiles.each { f ->
+                failureMessage += "  - $f\n"
+            }
+            throw new GradleException(failureMessage)
+        }
+    }
+}

@@ -2,13 +2,14 @@
   "version": "v1",
   "hooks": [
     {
-      "name": "Validate File Encoding (UTF-8 without BOM)",
+      "name": "Fix File Encoding (Remove UTF-8 BOM)",
       "trigger": "PostFileSave",
-      "matcher": "\\.(java|properties|ya?ml|json|md|sql|gradle|xml)$",
       "action": {
         "type": "command",
-        "command": "pwsh -NoProfile -File .kiro/scripts/validate-file-encoding.ps1 -FilePath \"{{filePath}}\""
-      }
+        "command": "powershell.exe -NoProfile -File .kiro/scripts/fix-file-encoding.ps1 -FilePath \"{{filePath}}\""
+      },
+      "matcher": "\\.(java|properties|ya?ml|json|md|sql|gradle|xml)$",
+      "enabled": true
     }
   ]
 }

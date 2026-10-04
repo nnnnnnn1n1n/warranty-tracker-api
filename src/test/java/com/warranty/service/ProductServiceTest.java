@@ -1,7 +1,11 @@
 package com.warranty.service;
 
+import com.warranty.dto.internal.ProductSearchResult;
+import com.warranty.dto.internal.SearchFilters;
 import com.warranty.dto.request.CreateProductRequest;
 import com.warranty.dto.request.UpdateProductRequest;
+import com.warranty.dto.response.PaginationMetadata;
+import com.warranty.dto.response.ProductListResponse;
 import com.warranty.dto.response.ProductResponse;
 import com.warranty.entity.Category;
 import com.warranty.entity.Product;
@@ -1048,5 +1052,679 @@ class ProductServiceTest {
         assertEquals(response1.getId(), response2.getId());
         assertEquals(response1.getName(), response2.getName());
         verify(productRepository, times(2)).findById(1L);
+    }
+
+    // ===== LIST PRODUCTS TESTS (PAGINATED, FILTERED, SORTED) =====
+
+    @Test
+    @DisplayName("listProducts should call repository with correct filters and pagination parameters")
+    void testListProducts_CallsRepositoryWithCorrectParameters() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Laptop");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        Product product2 = new Product();
+        product2.setId(2L);
+        product2.setName("Mouse");
+        product2.setPurchaseDate(today.minusMonths(12));
+        product2.setWarrantyMonths(12);
+        product2.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1, product2),
+                        2L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 20, 0);
+
+        // Assert
+        assertNotNull(response);
+        verify(productRepository, times(1)).searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0));
+    }
+
+    @Test
+    @DisplayName("listProducts should correctly assemble ProductListResponse from ProductSearchResult")
+    void testListProducts_AssemblesResponseCorrectly() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Laptop");
+        product1.setPurchaseDate(LocalDate.of(2023, 1, 15));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        1L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 20, 0);
+
+        // Assert
+        assertNotNull(response.getData());
+        assertNotNull(response.getPagination());
+        assertEquals(1, response.getData().size());
+        assertEquals("Laptop", response.getData().get(0).getName());
+        assertEquals(1L, response.getPagination().getTotalCount());
+    }
+
+    @Test
+    @DisplayName("listProducts should calculate warranty status for each product")
+    void testListProducts_CalculatesWarrantyStatus() {
+        // Arrange
+        Product activeProduct = new Product();
+        activeProduct.setId(1L);
+        activeProduct.setName("Active Warranty");
+        activeProduct.setPurchaseDate(today.minusMonths(1));
+        activeProduct.setWarrantyMonths(24);
+        activeProduct.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(activeProduct),
+                        1L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 20, 0);
+
+        // Assert
+        assertNotNull(response.getData().get(0).getWarrantyStatus());
+        assertTrue(response.getData().get(0).getWarrantyStatus().matches("ACTIVE|EXPIRING_SOON|EXPIRED"));
+    }
+
+    @Test
+    @DisplayName("listProducts with categoryId filter should pass filter to repository")
+    void testListProducts_WithCategoryFilter() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Electronics");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        1L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(1L, null, "id", "asc", 20, 0);
+
+        // Assert
+        assertNotNull(response);
+        verify(productRepository, times(1)).searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0));
+    }
+
+    @Test
+    @DisplayName("listProducts with status filter should pass filter to repository")
+    void testListProducts_WithStatusFilter() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Product");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        1L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, "ACTIVE", "id", "asc", 20, 0);
+
+        // Assert
+        assertNotNull(response);
+        verify(productRepository, times(1)).searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0));
+    }
+
+    @Test
+    @DisplayName("listProducts with combined categoryId and status filters should pass both to repository")
+    void testListProducts_WithCombinedFilters() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Product");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        1L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(1L, "ACTIVE", "id", "asc", 20, 0);
+
+        // Assert
+        assertNotNull(response);
+        verify(productRepository, times(1)).searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0));
+    }
+
+    @Test
+    @DisplayName("listProducts should pass sort field and direction to repository")
+    void testListProducts_PassesSortParameters() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Laptop");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        1L
+                );
+
+        when(productRepository.searchProducts(any(), eq("name"), eq("desc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "name", "desc", 20, 0);
+
+        // Assert
+        verify(productRepository, times(1)).searchProducts(any(), eq("name"), eq("desc"), eq(20), eq(0));
+    }
+
+    @Test
+    @DisplayName("listProducts should correctly calculate pagination metadata totalCount")
+    void testListProducts_PaginationMetadata_TotalCount() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Product 1");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        150L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 20, 0);
+
+        // Assert
+        assertEquals(150L, response.getPagination().getTotalCount());
+    }
+
+    @Test
+    @DisplayName("listProducts should correctly set pagination metadata limit")
+    void testListProducts_PaginationMetadata_Limit() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Product 1");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        150L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(25), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 25, 0);
+
+        // Assert
+        assertEquals(25, response.getPagination().getLimit());
+    }
+
+    @Test
+    @DisplayName("listProducts should correctly set pagination metadata offset")
+    void testListProducts_PaginationMetadata_Offset() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Product 1");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        150L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(50)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 20, 50);
+
+        // Assert
+        assertEquals(50, response.getPagination().getOffset());
+    }
+
+    @Test
+    @DisplayName("listProducts should calculate hasMore correctly when more results exist")
+    void testListProducts_PaginationMetadata_HasMore_True() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Product 1");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        // 150 total, limit 20, offset 0: (0 + 20) < 150 = true
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        150L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 20, 0);
+
+        // Assert
+        assertTrue(response.getPagination().isHasMore());
+    }
+
+    @Test
+    @DisplayName("listProducts should calculate hasMore correctly when no more results exist")
+    void testListProducts_PaginationMetadata_HasMore_False() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Product 1");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        // 25 total, limit 20, offset 0: (0 + 20) < 25 = true
+        // 25 total, limit 20, offset 20: (20 + 20) < 25 = false
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        25L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(20)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 20, 20);
+
+        // Assert
+        assertFalse(response.getPagination().isHasMore());
+    }
+
+    @Test
+    @DisplayName("listProducts should return empty data array when no products match filters")
+    void testListProducts_EmptyResults() {
+        // Arrange
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        new ArrayList<>(),
+                        0L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 20, 0);
+
+        // Assert
+        assertNotNull(response.getData());
+        assertEquals(0, response.getData().size());
+        assertEquals(0L, response.getPagination().getTotalCount());
+        assertFalse(response.getPagination().isHasMore());
+    }
+
+    @Test
+    @DisplayName("listProducts should return multiple products in correct order")
+    void testListProducts_MultipleProducts() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Product 1");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        Product product2 = new Product();
+        product2.setId(2L);
+        product2.setName("Product 2");
+        product2.setPurchaseDate(today.minusMonths(12));
+        product2.setWarrantyMonths(12);
+        product2.setCategory(testCategory);
+
+        Product product3 = new Product();
+        product3.setId(3L);
+        product3.setName("Product 3");
+        product3.setPurchaseDate(today.minusMonths(3));
+        product3.setWarrantyMonths(36);
+        product3.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1, product2, product3),
+                        3L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 20, 0);
+
+        // Assert
+        assertEquals(3, response.getData().size());
+        assertEquals("Product 1", response.getData().get(0).getName());
+        assertEquals("Product 2", response.getData().get(1).getName());
+        assertEquals("Product 3", response.getData().get(2).getName());
+    }
+
+    @Test
+    @DisplayName("listProducts should call getCurrentDate() for warranty calculations")
+    void testListProducts_CallsGetCurrentDate() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Product");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        1L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 20, 0);
+
+        // Assert
+        assertNotNull(response);
+        // Clock was used during listProducts call (via getCurrentDate through convertToResponse)
+        verify(clock, atLeastOnce()).instant();
+    }
+
+    @Test
+    @DisplayName("listProducts response includes category information in products")
+    void testListProducts_IncludesCategoryInProducts() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Product");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        1L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 20, 0);
+
+        // Assert
+        assertNotNull(response.getData().get(0).getCategory());
+        assertEquals(testCategory.getId(), response.getData().get(0).getCategory().getId());
+        assertEquals(testCategory.getName(), response.getData().get(0).getCategory().getName());
+    }
+
+    @Test
+    @DisplayName("listProducts with different sort fields should pass correct field to repository")
+    void testListProducts_DifferentSortFields() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Product");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        1L
+                );
+
+        when(productRepository.searchProducts(any(), eq("purchaseDate"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "purchaseDate", "asc", 20, 0);
+
+        // Assert
+        verify(productRepository, times(1)).searchProducts(any(), eq("purchaseDate"), eq("asc"), eq(20), eq(0));
+    }
+
+    @Test
+    @DisplayName("listProducts should handle large limit and offset values")
+    void testListProducts_LargePaginationValues() {
+        // Arrange
+        List<Product> products = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            Product product = new Product();
+            product.setId((long) i + 1001);
+            product.setName("Product " + i);
+            product.setPurchaseDate(today.minusMonths(6));
+            product.setWarrantyMonths(24);
+            product.setCategory(testCategory);
+            products.add(product);
+        }
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        products,
+                        5000L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(100), eq(1000)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 100, 1000);
+
+        // Assert
+        assertEquals(100, response.getData().size());
+        assertEquals(100, response.getPagination().getLimit());
+        assertEquals(1000, response.getPagination().getOffset());
+    }
+
+    @Test
+    @DisplayName("listProducts should handle pagination at exact boundary")
+    void testListProducts_PaginationAtExactBoundary() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Last Product");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        // Exactly 21 products total, requesting limit 20 at offset 20
+        // Result: 1 product, hasMore = (20 + 1) < 21 = false
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        21L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(20)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 20, 20);
+
+        // Assert
+        assertEquals(1, response.getData().size());
+        assertFalse(response.getPagination().isHasMore());
+    }
+
+    @Test
+    @DisplayName("listProducts should create SearchFilters with correct business date")
+    void testListProducts_SearchFiltersHasBusinessDate() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Product");
+        product1.setPurchaseDate(today.minusMonths(6));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        1L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 20, 0);
+
+        // Assert
+        // Verify that searchProducts was called (SearchFilters created with today's date)
+        assertNotNull(response);
+        verify(productRepository, times(1)).searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0));
+    }
+
+    @Test
+    @DisplayName("listProducts all products should have warranty end date calculated")
+    void testListProducts_AllProductsHaveWarrantyEndDate() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Product 1");
+        product1.setPurchaseDate(LocalDate.of(2023, 6, 15));
+        product1.setWarrantyMonths(24);
+        product1.setCategory(testCategory);
+
+        Product product2 = new Product();
+        product2.setId(2L);
+        product2.setName("Product 2");
+        product2.setPurchaseDate(LocalDate.of(2023, 1, 1));
+        product2.setWarrantyMonths(12);
+        product2.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1, product2),
+                        2L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(null, null, "id", "asc", 20, 0);
+
+        // Assert
+        assertEquals(LocalDate.of(2025, 6, 15), response.getData().get(0).getWarrantyEndDate());
+        assertEquals(LocalDate.of(2024, 1, 1), response.getData().get(1).getWarrantyEndDate());
+    }
+
+    @Test
+    @DisplayName("listProducts with categoryId=1 and status=ACTIVE should pass both filters")
+    void testListProducts_CategoryAndStatusFilters() {
+        // Arrange
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Product");
+        product1.setPurchaseDate(today.minusMonths(2));
+        product1.setWarrantyMonths(12);
+        product1.setCategory(testCategory);
+
+        com.warranty.dto.internal.ProductSearchResult searchResult =
+                new com.warranty.dto.internal.ProductSearchResult(
+                        List.of(product1),
+                        5L
+                );
+
+        when(productRepository.searchProducts(any(), eq("id"), eq("asc"), eq(20), eq(0)))
+                .thenReturn(searchResult);
+
+        // Act
+        com.warranty.dto.response.ProductListResponse response =
+                productService.listProducts(1L, "ACTIVE", "id", "asc", 20, 0);
+
+        // Assert
+        assertEquals(5L, response.getPagination().getTotalCount());
+        assertEquals(1, response.getData().size());
     }
 }

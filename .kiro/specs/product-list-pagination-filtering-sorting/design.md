@@ -1,4 +1,4 @@
-﻿# Design Document: Product List — Pagination, Filtering & Sorting
+# Design Document: Product List — Pagination, Filtering & Sorting
 
 ## Overview
 
@@ -422,11 +422,11 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
 **Key design decisions**:
 
 - **Database-agnostic repository**: The repository contains no database detection or branching logic. It consumes the warrantyEndDateExpr value directly as a configuration property resolved by Spring at startup. The @Value annotation injects the correct expression based on the active profile (determined by Spring Boot's profile-based configuration resolution).
-- **Profile-resolved configuration**: When the application starts, Spring loads either pplication.properties (default) or pplication-postgresql.yml (if -Dspring.profiles.active=postgresql is set). The db.warranty-end-date-expr property is resolved from the active configuration and injected into the repository. No repository code checks which database is active.
-- **Shared WHERE clause**: Both count and data queries use uildWhereClause(), ensuring totalCount matches filtered data
+- **Profile-resolved configuration**: When the application starts, Spring loads either pplication.properties (default) or pplication-postgresql.yml (if -Dspring.profiles.active=postgresql is set). The db.warranty-end-date-expr property is resolved from the active configuration and injected into the repository. No repository code checks which database is active.
+- **Shared WHERE clause**: Both count and data queries use uildWhereClause(), ensuring totalCount matches filtered data
 - **Bind parameters**: All filter values (categoryId, limit, offset, today dates) use :parameterName; no string concatenation of user input
 - **Warranty expression injected**: Database-specific warrantyEndDateExpr comes from @Value (profile-specific config)
-- **Whitelist mapping**: uildOrderByClause() uses a Map to validate sort fields and translate names, preventing SQL injection
+- **Whitelist mapping**: uildOrderByClause() uses a Map to validate sort fields and translate names, preventing SQL injection
 - **EntityManager native queries**: Returns managed Product entities; categories loaded via JOIN (no N+1)
 - **Arbitrary offset/limit**: Direct LIMIT/OFFSET in SQL preserves client semantics without page conversion
 
@@ -513,5 +513,3 @@ This ensures all warranty calculations use a consistent date.
 - Add db.warranty-end-date-expr property to application.properties and profile-specific configs
 
 **No schema changes**: Product and Category tables remain unchanged.
-
-

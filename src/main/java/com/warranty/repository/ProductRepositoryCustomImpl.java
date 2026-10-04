@@ -1,4 +1,4 @@
-﻿package com.warranty.repository;
+package com.warranty.repository;
 
 import com.warranty.dto.internal.ProductSearchResult;
 import com.warranty.dto.internal.SearchFilters;
