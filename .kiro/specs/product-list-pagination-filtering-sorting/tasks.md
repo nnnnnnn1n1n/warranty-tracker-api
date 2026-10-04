@@ -49,15 +49,15 @@ This implementation plan delivers the GET /api/products endpoint with pagination
 - [x] 3. Update ProductService.listProducts() to call getCurrentDate() and pass to repository
 - [x] 4. Update ProductServiceTest to mock Clock for deterministic dates
 - [x] 5. Verify existing tests still pass
-- [ ] 6. Create PaginationMetadata schema in OpenAPI
-- [ ] 7. Create ProductListResponse schema
-- [ ] 8. Create WarrantyStatus enum schema
-- [ ] 9. Update ProductResponse schema to include warrantyStatus field
-- [ ] 10. Define GET /api/products endpoint with query parameters in OpenAPI
-- [ ] 11. Document HTTP 400 validation errors with specific messages
-- [ ] 12. Document HTTP 200 response structure
-- [ ] 13. Document HTTP 200 with empty array for non-existent categoryId
-- [ ] 14. Add example requests and responses to OpenAPI
+- [x] 6. Create PaginationMetadata schema in OpenAPI
+- [x] 7. Create ProductListResponse schema
+- [x] 8. Create WarrantyStatus enum schema
+- [x] 9. Update ProductResponse schema to include warrantyStatus field
+- [x] 10. Define GET /api/products endpoint with query parameters in OpenAPI
+- [x] 11. Document HTTP 400 validation errors with specific messages
+- [x] 12. Document HTTP 200 response structure
+- [x] 13. Document HTTP 200 with empty array for non-existent categoryId
+- [x] 14. Add example requests and responses to OpenAPI
 - [ ] 15. Verify Swagger UI displays correctly
 - [ ] 16. Create dto/response/PaginationMetadata.java
 - [ ] 17. Create dto/response/ProductListResponse.java
